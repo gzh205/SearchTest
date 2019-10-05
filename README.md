@@ -3,7 +3,7 @@
 Form1是测试文件  
 爬虫使用方式：创建一个Crawler的子类，并实现pageProsser方法（在该方法中添加爬虫的爬取规则），最后调用Crawler的静态成员run方法即可运行。  
 爬取规则示例代码:  
-'
+`
 class Demo:Crawler
 {
     //爬虫打开每一个页面都会调用一次该函数
@@ -36,7 +36,7 @@ class Demo:Crawler
         sw.Close();  
     }  
 }
-'
+`
 调用爬虫示例代码:  
 Crawler.run(new Demo().new Demo().setUrl("网址").setDepth(深度).setUA("浏览器标识"))  
   
