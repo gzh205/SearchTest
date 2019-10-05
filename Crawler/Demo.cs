@@ -5,18 +5,25 @@ using System.Text;
 
 namespace Crawler
 {
+    /// <summary>
+    /// 含有爬取规则的子类
+    /// </summary>
     class Demo:Crawler
     {
 
-        public override void pageProcesser(Documents doc)
+        protected override void pageProcesser(Documents doc)
         {
             writeTxt(doc.getDocument().Text);
             try
             {
                 HtmlAgilityPack.HtmlNodeCollection nodes = doc.getUrls();
-                foreach (HtmlAgilityPack.HtmlNode i in nodes)
+                if (nodes == null) writeTxt("ndoes为空");
+                else
                 {
-                    writeTxt(i.GetAttributeValue("href", "null"));
+                    foreach (HtmlAgilityPack.HtmlNode i in nodes)
+                    {
+                        writeTxt(i.GetAttributeValue("href",null));
+                    }
                 }
             }
             catch(WebException we)
