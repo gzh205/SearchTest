@@ -38,7 +38,7 @@ class Demo:Crawler
 }
 ```
 调用爬虫示例代码:  
-Crawler.run(new Demo().new Demo().setUrl("网址").setDepth(深度).setUA("浏览器标识"))  
+```Crawler.run(new Demo().new Demo().setUrl("网址").setDepth(深度).setUA("浏览器标识"))  ```
   
 其中深度就是爬虫之心深度优先搜索时打开页面的深度,因为爬虫不能无限制地打开新的页面  
 浏览器标识是为了让爬虫能够模拟手机或者iPad设备
