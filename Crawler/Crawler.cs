@@ -8,8 +8,11 @@ using System.Text.RegularExpressions;
 
 namespace Crawler
 {
-    abstract class Crawler
+    public abstract class Crawler
     {
+        /// <summary>
+        /// 无需手动初始化该类的对象
+        /// </summary>
         public Crawler()
         {
             this.page = new Dictionary<string, Documents>();
@@ -17,6 +20,11 @@ namespace Crawler
             this.result = new Dictionary<string, string>();
             this.Url = new List<string>();
         }
+        /// <summary>
+        /// 获取指定url对应的Document页面
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
         protected Documents getPage(string url)
         {
             return this.page[url];

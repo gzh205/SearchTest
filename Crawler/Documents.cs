@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -9,7 +10,7 @@ using HtmlAgilityPack;
 
 namespace Crawler
 {
-    class Documents
+    public class Documents
     {
         /// <summary>
         /// 初始化对象
@@ -30,7 +31,20 @@ namespace Crawler
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
             request.Method = "Get";
             request.UserAgent = UA;
-            this.doc.Load(request.GetResponse().GetResponseStream());
+            request.Timeout = 5000;
+            request.Accept = "Accept:text/html, application/xhtml+xml, */*";
+            Stream strean = request.GetResponse().GetResponseStream();
+            this.doc = new HtmlDocument();
+            this.doc.Load(strean);
+            strean.Dispose();
+        }
+        /// <summary>
+        /// 获取网页文件的,以字符串的形式存放网页的HTML和JavaScript等代码
+        /// </summary>
+        /// <returns></returns>
+        public string geHtmlDoc()
+        {
+            return this.doc.Text;
         }
         /// <summary>
         /// 获取网页文档的对象
@@ -58,6 +72,31 @@ namespace Crawler
             HtmlNodeCollection res = this.doc.DocumentNode.SelectNodes("//a");
             if (res == null) throw new WebException("element not found");
             return res;
+        }
+        /// <summary>
+        /// 将图片保存到磁盘
+        /// </summary>
+        /// <param name="filename">图片的文件名称</param>
+        /// <param name="img">Image对象</param>
+        public static void SaveImage(string filename,Image img)
+        {
+            FileStream sw = new FileStream(filename, FileMode.OpenOrCreate);
+            byte[] dat = (byte[])new ImageConverter().ConvertTo(img, typeof(byte[]));
+            sw.Write(dat, 0, dat.Length);
+            sw.Close();
+        }
+        /// <summary>
+        /// 从指定url下载图片,返回图片的Image对象,下载失败返回null
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        public static Image GetImage(string url)
+        {
+            HttpWebRequest hwq = (HttpWebRequest)WebRequest.Create(url);
+            hwq.Method = "Get";
+            hwq.UserAgent = Documents.WindowsUA;
+            hwq.Accept = "Accept:text/html, application/xhtml+xml, */*";
+            return Image.FromStream(hwq.GetResponse().GetResponseStream());
         }
         /// <summary>
         /// 格式化URL,获取其中的域名
@@ -140,19 +179,19 @@ namespace Crawler
         ///<summary>
         ///Windows平台的浏览器标识
         ///</summary>
-        public static string WindowsUA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3100.0 Safari/537.36";
+        public static string WindowsUA = "User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3100.0 Safari/537.36";
         ///<summary>
         ///iphone手机的浏览器标识
         ///</summary>
-        public static string IPhoneUA = "Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1";
+        public static string IPhoneUA = "User-Agent:Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1";
         ///<summary>
         ///android手机的浏览器标识
         ///</summary>
-        public static string AndroidUA = "Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Mobile Safari/537.36";
+        public static string AndroidUA = "User-Agent:Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Mobile Safari/537.36";
         ///<summary>
         ///iPad的浏览器标识
         ///</summary>
-        public static string IPad = "Mozilla/5.0 (iPad; CPU OS 11_0 like Mac OS X) AppleWebKit/604.1.34 (KHTML, like Gecko) Version/11.0 Mobile/15A5341f Safari/604.1";
+        public static string IPadUA = "User-Agent:Mozilla/5.0 (iPad; CPU OS 11_0 like Mac OS X) AppleWebKit/604.1.34 (KHTML, like Gecko) Version/11.0 Mobile/15A5341f Safari/604.1";
         /// <summary>
         /// 网页文档
         /// </summary>

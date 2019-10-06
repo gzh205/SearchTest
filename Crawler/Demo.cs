@@ -8,7 +8,7 @@ namespace Crawler
     /// <summary>
     /// 含有爬取规则的子类
     /// </summary>
-    class Demo:Crawler
+    public class Demo : Crawler
     {
 
         protected override void pageProcesser(Documents doc)
