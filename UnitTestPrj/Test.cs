@@ -16,7 +16,8 @@ namespace UnitTestPrj
         [TestMethod]
         public void testDownloadImage()
         {
-            Crawler.Documents.SaveImage("tmp.bmp",Crawler.Documents.GetImage("http://a.hiphotos.baidu.com/image/pic/item/838ba61ea8d3fd1fc9c7b6853a4e251f94ca5f46.jpg"));
+            int n;
+            Crawler.Documents.SaveImage("tmp.jpg",Crawler.Documents.GetImage("http://pm.weigox.com:8008/uploadfile/gx02/190915/bb19.jpg", out n));
         }
         /// <summary>
         /// 将字符串写进文件中
