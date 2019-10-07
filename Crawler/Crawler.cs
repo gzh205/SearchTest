@@ -120,7 +120,7 @@ namespace Crawler
         /// <param name="dep"></param>
         protected void find(string parent,HtmlNodeCollection nodes,int dep)
         {
-            if (dep >= 5)
+            if (dep >= depth)
             {
                 return;
             }
