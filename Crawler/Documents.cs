@@ -176,6 +176,8 @@ namespace Crawler
                 return null;
             if (href == "#")
                 return url;
+            if (href.Contains("http") || href.Contains("https"))
+                return href;
             string output = "";
             string[] result = url.Split('/');
             int len = result.Length;
