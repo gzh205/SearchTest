@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using HtmlAgilityPack;
 
 namespace Crawler
@@ -84,6 +85,31 @@ namespace Crawler
             byte[] dat = (byte[])new ImageConverter().ConvertTo(img, typeof(byte[]));
             sw.Write(dat, 0, dat.Length);
             sw.Close();
+        }
+        /// <summary>
+        /// 从指定url下载图片,循环下载，直到成功为止，每次重试前都会暂停0.1秒
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        public static Image GetImage(string url,out int num)
+        {
+            WebClient wc = new WebClient();
+            wc.Credentials = CredentialCache.DefaultCredentials;
+            byte[] pageData = null;
+            num = 0;
+            while (pageData == null)
+            {
+                try
+                {
+                    pageData = wc.DownloadData("http://pm.weigox.com:8008/uploadfile/gx02/190915/bb19.jpg");
+                    Thread.Sleep(100);
+                }
+                catch (Exception)
+                {
+                    num++;
+                }
+            }
+            return Image.FromStream(new MemoryStream(pageData));
         }
         /// <summary>
         /// 从指定url下载图片,返回图片的Image对象,下载失败返回null
