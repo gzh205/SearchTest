@@ -90,6 +90,7 @@ namespace Crawler
         /// 从指定url下载图片,循环下载，直到成功为止，每次重试前都会暂停0.1秒
         /// </summary>
         /// <param name="url"></param>
+        /// <param name="num"></param>
         /// <returns></returns>
         public static Image GetImage(string url,out int num)
         {
@@ -101,7 +102,7 @@ namespace Crawler
             {
                 try
                 {
-                    pageData = wc.DownloadData("http://pm.weigox.com:8008/uploadfile/gx02/190915/bb19.jpg");
+                    pageData = wc.DownloadData(url);
                     Thread.Sleep(100);
                 }
                 catch (Exception)
