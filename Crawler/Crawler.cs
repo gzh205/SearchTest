@@ -8,6 +8,9 @@ using System.Text.RegularExpressions;
 
 namespace Crawler
 {
+    /// <summary>
+    /// 爬虫主类
+    /// </summary>
     public abstract class Crawler
     {
         /// <summary>
