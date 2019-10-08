@@ -11,26 +11,17 @@ namespace Crawler
     /// <summary>
     /// 爬虫主类
     /// </summary>
-    public abstract class Crawler
+    public abstract class CrawlerCore
     {
         /// <summary>
         /// 无需手动初始化该类的对象
         /// </summary>
-        public Crawler()
+        public CrawlerCore()
         {
             this.page = new Dictionary<string, Documents>();
-            this.client = new WebClient();
             this.result = new Dictionary<string, string>();
             this.Url = new List<string>();
-        }
-        /// <summary>
-        /// 获取指定url对应的Document页面
-        /// </summary>
-        /// <param name="url"></param>
-        /// <returns></returns>
-        protected Documents getPage(string url)
-        {
-            return this.page[url];
+            this.depth = 1;
         }
         /// <summary>
         /// 设置浏览器标识,爬虫会模拟字符串所指定的设备运行
@@ -38,7 +29,7 @@ namespace Crawler
         /// </summary>
         /// <param name="ua">可以使用Documents的几个静态成员,也可以自己填写该值</param>
         /// <returns></returns>
-        public Crawler setUA(string ua)
+        public CrawlerCore setUA(string ua)
         {
             this.ua = ua;
             return this;
@@ -48,25 +39,17 @@ namespace Crawler
         /// </summary>
         /// <param name="url"></param>
         /// <returns></returns>
-        public Crawler addUrl(string url)
+        public CrawlerCore addUrl(string url)
         {
             this.Url.Add(url);
             return this;
-        }
-        /// <summary>
-        /// 获取第一个爬取的地址
-        /// </summary>
-        /// <returns></returns>
-        protected string getRootUrl()
-        {
-            return this.rootUrl;
         }
         /// <summary>
         /// 设置爬虫第一次爬取的地址
         /// </summary>
         /// <param name="url"></param>
         /// <returns></returns>
-        public Crawler setUrl(string url)
+        public CrawlerCore setUrl(string url)
         {
             this.rootUrl = url;
             return this;
@@ -76,7 +59,7 @@ namespace Crawler
         /// </summary>
         /// <param name="depth"></param>
         /// <returns></returns>
-        public Crawler setDepth(int depth)
+        public CrawlerCore setDepth(int depth)
         {
             this.depth = depth;
             return this;
@@ -87,8 +70,7 @@ namespace Crawler
         protected void init()
         {
             if (rootUrl == null) throw new Exception("url不能为空");
-            string data = Encoding.GetEncoding("utf-8").GetString(client.DownloadData(rootUrl));
-            page.Add(rootUrl, (ua == null ? new Documents(data) : new Documents(data, ua)));
+            page.Add(rootUrl, (ua == null ? new Documents(rootUrl) : new Documents(rootUrl, ua)));
             this.Url.Add(rootUrl);
         }
         /// <summary>
@@ -149,32 +131,80 @@ namespace Crawler
             }
         }
         /// <summary>
-        /// 我也记不清这个方法是干什么的了,可能是弃用的方法
+        /// 
         /// </summary>
-        /// <param name="url"></param>
-        protected void loadPage(string url)
-        {
-            if (url == null) throw new Exception("loadPage加载页面失败，URL为空");
-            
-        }
-        protected Dictionary<string, Documents> page;
-        protected List<string> Url;
-        protected string rootUrl;
-        protected WebClient client;
-        protected int depth;
-        protected string ua;
+        protected Dictionary<string, Documents> page { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        protected List<string> Url { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        protected string rootUrl { get; set; }
+        /// <summary>
+        /// 爬取深度
+        /// </summary>
+        protected int depth { get; set; }
+        /// <summary>
+        /// 浏览器标识
+        /// </summary>
+        protected string ua { get; set; }
         /// <summary>
         /// 通过下面的方法运行爬虫:
         /// Crawler.run("自己构造的子类对象");
+        /// 该方法会自动打开网页中的所有超链接,适用于对整个网站进行搜索
         /// </summary>
         /// <param name="c">自己构造的子类对象(必须实现pageProcesser)</param>
-        public static void run(Crawler c)
+        public static void run(CrawlerCore c)
         {
-            if (c.getRootUrl() == null) throw new Exception("先调用setUrl设置初始地址");
+            if (c.rootUrl == null) throw new Exception("先调用setUrl设置初始地址");
             c.init();
-            c.find(c.getRootUrl(),c.page[c.getRootUrl()].getUrls(),0);
+            if (c.depth > 1)
+            {
+                try
+                {
+                    c.find(c.rootUrl, c.page[c.rootUrl].getUrls(), 0);
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
+            }
+            else if (c.depth == 1)
+            {
+                c.pageProcesser(c.page[c.rootUrl]);
+            }
+            else throw new Exception("depth值不合法");
         }
+        /// <summary>
+        /// 依次打开并处理urls中的链接,使用此方法时设置depth是无效的
+        /// 该方法会依次打开urls内的网页，适用于对若干网页进行查找
+        /// </summary>
+        /// <param name="c">自己构造的子类对象(必须实现pageProcesser)</param>
+        /// <param name="urls">链接的内容</param>
+        public static void run(CrawlerCore c,string[] urls)
+        {
+            foreach(string url in urls)
+            {
+                try
+                {
+                    c.pageProcesser((c.ua == null) ? new Documents(url) : new Documents(url, c.ua));
+                }
+                catch(Exception e)
+                {
+                    System.Console.WriteLine(e.Message);
+                }
+            }
+        }
+        /// <summary>
+        /// 页面处理方法，需要使用者自己实现
+        /// </summary>
+        /// <param name="doc"></param>
         protected abstract void pageProcesser(Documents doc);
-        protected Dictionary<string,string> result;
+        /// <summary>
+        /// 页面中所有的超链接
+        /// </summary>
+        protected Dictionary<string, string> result { get; set; }
     }
 }

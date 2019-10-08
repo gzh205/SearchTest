@@ -11,16 +11,22 @@ using HtmlAgilityPack;
 
 namespace Crawler
 {
+    /// <summary>
+    /// 包含常见的对页面操作的方法
+    /// </summary>
     public class Documents
     {
         /// <summary>
         /// 初始化对象
         /// </summary>
         /// <param name="html">需要打开网页的地址</param>
-        public Documents(string html)
+        public Documents(string url)
         {
             this.doc = new HtmlAgilityPack.HtmlDocument();
-            this.doc.LoadHtml(html);
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+            Stream strean = request.GetResponse().GetResponseStream();
+            this.doc = new HtmlDocument();
+            this.doc.Load(strean);
         }
         /// <summary>
         /// 新添加的构造函数，支持模拟设备
@@ -195,7 +201,7 @@ namespace Crawler
                 else
                     tmp.Add(format[i]);
             }
-            for(int i = 0; i < len; i++)
+            for(int i = 0; i < len - 1; i++)
             {
                 output += result[i] + "/";
             }
