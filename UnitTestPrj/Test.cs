@@ -9,34 +9,14 @@ namespace UnitTestPrj
     public class Test
     {
         [TestMethod]
-        public void testUA()
+        public void testUri()
         {
-            Crawler.Documents doc = new Crawler.Documents("https://nbx2.kongzhong.com/r/jw/180319110923", Crawler.Documents.AndroidUA);//使用安卓手机访问百度移动网站
-            writeIntoFile("testua.html",doc.geHtmlDoc());
+            Uri u = new Uri("http://www.baidu.com/321/432/11.html");
+            Uri v = new Uri(u,"http://www.321.com/1/4.html");
+            string tmp = v.ToString();
+            tmp = "123";
         }
-        [TestMethod]
-        public void testDownloadImage()
-        {
-            int n;
-            Crawler.Documents.SaveImage("tmp.jpg",Crawler.Documents.GetImage("http://pm.weigox.com:8008/uploadfile/gx02/190915/bb19.jpg", out n));
-        }
-        [TestMethod]
-        public void testAutoOpenUri()
-        {
-            Crawler.CrawlerCore.run(new Demo().setUrl("https://www.nuoweb.com/programming/2628.html").setDepth(2));
-        }
-        [TestMethod]
-        public void testUrlFormat()
-        {
-            string dat = Documents.urlFormat("https://www.baoidu.com", "/123.html") + "\r\n";
-            dat += Documents.urlFormat("https://www.baoidu.com", "http://abc.123.html") + "\r\n";
-            dat += Documents.urlFormat("https://www.baoidu.com/dsa/ewq/123/4.html", "../../123.html") + "\r\n";
-            dat += Documents.urlFormat("https://www.baoidu.com/22/33/44/ss", "../123.html") + "\r\n";
-            dat += Documents.urlFormat("https://www.baoidu.com/321", "./123.html") + "\r\n";
-            dat += Documents.urlFormat("https://www.baoidu.com/dsadsa", "123.html") + "\r\n";
-            dat += Documents.urlFormat("https://www.baoidu.com/666", "789/123.html") + "\r\n";
-            writeIntoFile("tmp.txt", dat);
-        }
+        
         /// <summary>
         /// 将字符串写进文件中
         /// </summary>
