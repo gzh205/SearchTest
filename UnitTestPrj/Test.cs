@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using Crawler;
+using System.Threading;
 
 namespace UnitTestPrj
 {
@@ -16,7 +17,19 @@ namespace UnitTestPrj
             string tmp = v.ToString();
             tmp = "123";
         }
-        
+        [TestMethod]
+        public void testMultiThread()
+        {
+            CrawlerCore.run(new Demo("https://zhidao.baidu.com/question/225977538.html").setDepth(3).setThreadNum(8));
+        }
+        [TestMethod]
+        public void testThreads()
+        {
+            ThreadPool.SetMinThreads(5, 5);
+            ThreadPool.SetMaxThreads(10, 10);
+            for(int i=0;i<100;i++)
+                ThreadPool.QueueUserWorkItem()
+        }
         /// <summary>
         /// 将字符串写进文件中
         /// </summary>

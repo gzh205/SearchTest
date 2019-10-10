@@ -80,8 +80,9 @@ namespace Crawler
                     if (result != null)
                         results.Add(result);
                 }
+                return results.ToArray();
             }
-            return results.ToArray();
+            return null;
         }
         /// <summary>
         /// 将图片保存到磁盘

@@ -11,13 +11,13 @@ namespace Crawler
         public UrlOptions(Uri uri)
         {
             uris = new List<Uri>();
-            cursor = 0;
+            cursor = -1;
             uris.Add(uri);
         }
         public UrlOptions(Uri[] uriArr)
         {
             this.uris = new List<Uri>(uriArr);
-            cursor = 0;
+            cursor = -1;
         }
         /// <summary>
         /// 获取当前的uri
@@ -33,8 +33,8 @@ namespace Crawler
         /// <returns></returns>
         public Uri nextUri()
         {
-            if (++cursor <= uris.Count)
-                return uris[cursor];
+            if (cursor + 1 < uris.Count)
+                return uris[++cursor];
             else
                 return null;
         }
