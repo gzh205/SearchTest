@@ -2,3 +2,9 @@
 
 # IDE1006: 命名样式
 dotnet_diagnostic.IDE1006.severity = none
+
+# CA1303: 请不要将文本作为本地化参数传递
+dotnet_diagnostic.CA1303.severity = silent
+
+# CA2237: 将 ISerializable 类型标记为“可序列化”
+dotnet_diagnostic.CA2237.severity = silent

@@ -5,19 +5,28 @@ using System.Text;
 
 namespace Crawler
 {
-    class WebException : Exception
+    public class WebException : Exception
     {
 
-        private string message;
+        public string message { protected set; get; }
 
         public WebException(string message) : base(message)
         {
             this.message = message;
         }
 
-        public string getMessage()
+        public WebException(string message, Exception innerException) : base(message, innerException)
         {
-            return this.message;
+            this.message = message;
+        }
+
+        public WebException()
+        {
+        }
+
+        protected WebException(System.Runtime.Serialization.SerializationInfo serializationInfo, System.Runtime.Serialization.StreamingContext streamingContext)
+        {
+            throw new NotImplementedException();
         }
     }
 }

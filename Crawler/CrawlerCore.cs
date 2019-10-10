@@ -2,209 +2,91 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Net;
-using HtmlAgilityPack;
-using System.Text.RegularExpressions;
 
 namespace Crawler
 {
     /// <summary>
-    /// 爬虫主类
+    /// 爬虫主类,不能直接使用该类,因为没有实现PageProcessor
     /// </summary>
     public abstract class CrawlerCore
     {
+        ///<summary>
+        ///Windows平台的浏览器标识
+        ///</summary>
+        public static string WindowsUA { get; } = "User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3100.0 Safari/537.36";
+        ///<summary>
+        ///iphone手机的浏览器标识
+        ///</summary>
+        public static string IPhoneUA { get; } = "User-Agent:Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1";
+        ///<summary>
+        ///android手机的浏览器标识
+        ///</summary>
+        public static string AndroidUA { get; } = "User-Agent:Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Mobile Safari/537.36";
+        ///<summary>
+        ///iPad的浏览器标识
+        ///</summary>
+        public static string IPadUA { get; } = "User-Agent:Mozilla/5.0 (iPad; CPU OS 11_0 like Mac OS X) AppleWebKit/604.1.34 (KHTML, like Gecko) Version/11.0 Mobile/15A5341f Safari/604.1";
         /// <summary>
-        /// 无需手动初始化该类的对象
+        /// 浏览器标识,配合4个静态变量使用
         /// </summary>
-        public CrawlerCore()
+        public string UA {  get; private set; }
+        /// <summary>
+        /// 开启的线程数量
+        /// </summary>
+        public int ThreadNum { get; private set; }
+        /// <summary>
+        /// 使用自动打开超链接的模式时,打开链接的深度
+        /// </summary>
+        public int depth { get; private set; }
+        /// <summary>
+        /// 存放网站的uri信息
+        /// </summary>
+        public UrlOptions urls { get; private set; }
+        /// <summary>
+        /// 多线程读取网页
+        /// </summary>
+        private UrlThread threads { set; get; }
+        public CrawlerCore(string[] uris)
         {
-            this.page = new Dictionary<string, Documents>();
-            this.result = new Dictionary<string, string>();
-            this.Url = new List<string>();
-            this.depth = 1;
+            this.urls = new UrlOptionArrImpl(str2uri(uris));
+            init();
         }
-        /// <summary>
-        /// 设置浏览器标识,爬虫会模拟字符串所指定的设备运行
-        /// 注意:不设置该值或将该值置为空也能运行爬虫
-        /// </summary>
-        /// <param name="ua">可以使用Documents的几个静态成员,也可以自己填写该值</param>
-        /// <returns></returns>
+        public CrawlerCore(string link)
+        {
+            this.urls = new UrlOptionUriImpl(new Uri(link));
+            init();
+        }
+        public void init()
+        {
+            ThreadNum = 1;
+            this.depth = 1;
+            threads = new UrlThread(this);
+            this.urls.setMaxSize();
+        }
+        public CrawlerCore setDepth(int num)
+        {
+            this.depth = num;
+            return this;
+        }
         public CrawlerCore setUA(string ua)
         {
-            this.ua = ua;
+            this.UA = ua;
             return this;
         }
-        /// <summary>
-        /// 添加一个爬取的地址
-        /// </summary>
-        /// <param name="url"></param>
-        /// <returns></returns>
-        public CrawlerCore addUrl(string url)
+        public CrawlerCore setThreadNum(int num)
         {
-            this.Url.Add(url);
+            this.ThreadNum = num;
             return this;
         }
-        /// <summary>
-        /// 设置爬虫第一次爬取的地址
-        /// </summary>
-        /// <param name="url"></param>
-        /// <returns></returns>
-        public CrawlerCore setUrl(string url)
+        public abstract void pageProcesser(Documents doc);
+        public static Uri[] str2uri(string[] uri)
         {
-            this.rootUrl = url;
-            return this;
-        }
-        /// <summary>
-        /// 设置爬虫的爬取深度,因为爬虫采用深度优先搜索的算法
-        /// </summary>
-        /// <param name="depth"></param>
-        /// <returns></returns>
-        public CrawlerCore setDepth(int depth)
-        {
-            this.depth = depth;
-            return this;
-        }
-        /// <summary>
-        /// 初始化爬虫
-        /// </summary>
-        protected void init()
-        {
-            if (rootUrl == null) throw new Exception("url不能为空");
-            page.Add(rootUrl, (ua == null ? new Documents(rootUrl) : new Documents(rootUrl, ua)));
-            this.Url.Add(rootUrl);
-        }
-        /// <summary>
-        /// 获取url列表中的第一个元素
-        /// </summary>
-        /// <returns></returns>
-        protected string getUrl()
-        {
-            return this.Url.First();
-        }
-        /// <summary>
-        /// 返回所有爬到的网页
-        /// </summary>
-        /// <returns></returns>
-        protected Dictionary<string,string> getResult()
-        {
-            return this.result;
-        }
-        /// <summary>
-        /// 获取
-        /// </summary>
-        /// <returns></returns>
-        protected HtmlAgilityPack.HtmlNodeCollection getDocumentUrls()
-        {
-            return this.page[this.getUrl()].getUrls();
-        }
-        /// <summary>
-        /// 爬虫的查找算法,由爬虫的run方法自己调用
-        /// </summary>
-        /// <param name="parent"></param>
-        /// <param name="nodes"></param>
-        /// <param name="dep"></param>
-        protected void find(string parent,HtmlNodeCollection nodes,int dep)
-        {
-            if (dep >= depth)
+            Uri[] result = new Uri[uri.Length];
+            for(int i = 0; i < uri.Length; i++)
             {
-                return;
+                result[i] = new Uri(uri[i]);
             }
-            for(int i=0;i<nodes.Count;i++)
-            {
-                string href = nodes[i].GetAttributeValue("href", null);
-                if (href == "" || href == null)
-                    continue;
-                href = Documents.urlFormat(parent, href);
-                if (!Documents.isExist(href, page))
-                {
-                    page.Add(href, (ua == null ? new Documents(href) : new Documents(href, ua)));
-                    this.pageProcesser(page[href]);
-                    try
-                    {
-                        find(href, page[href].getUrls(), dep + 1);
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e.Message);
-                    }
-                }
-            }
+            return result;
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        protected Dictionary<string, Documents> page { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        protected List<string> Url { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        protected string rootUrl { get; set; }
-        /// <summary>
-        /// 爬取深度
-        /// </summary>
-        protected int depth { get; set; }
-        /// <summary>
-        /// 浏览器标识
-        /// </summary>
-        protected string ua { get; set; }
-        /// <summary>
-        /// 通过下面的方法运行爬虫:
-        /// Crawler.run("自己构造的子类对象");
-        /// 该方法会自动打开网页中的所有超链接,适用于对整个网站进行搜索
-        /// </summary>
-        /// <param name="c">自己构造的子类对象(必须实现pageProcesser)</param>
-        public static void run(CrawlerCore c)
-        {
-            if (c.rootUrl == null) throw new Exception("先调用setUrl设置初始地址");
-            c.init();
-            if (c.depth > 1)
-            {
-                try
-                {
-                    c.find(c.rootUrl, c.page[c.rootUrl].getUrls(), 0);
-                }
-                catch(Exception e)
-                {
-                    Console.WriteLine(e.Message);
-                }
-            }
-            else if (c.depth == 1)
-            {
-                c.pageProcesser(c.page[c.rootUrl]);
-            }
-            else throw new Exception("depth值不合法");
-        }
-        /// <summary>
-        /// 依次打开并处理urls中的链接,使用此方法时设置depth是无效的
-        /// 该方法会依次打开urls内的网页，适用于对若干网页进行查找
-        /// </summary>
-        /// <param name="c">自己构造的子类对象(必须实现pageProcesser)</param>
-        /// <param name="urls">链接的内容</param>
-        public static void run(CrawlerCore c,string[] urls)
-        {
-            foreach(string url in urls)
-            {
-                try
-                {
-                    c.pageProcesser((c.ua == null) ? new Documents(url) : new Documents(url, c.ua));
-                }
-                catch(Exception e)
-                {
-                    System.Console.WriteLine(e.Message);
-                }
-            }
-        }
-        /// <summary>
-        /// 页面处理方法，需要使用者自己实现
-        /// </summary>
-        /// <param name="doc"></param>
-        protected abstract void pageProcesser(Documents doc);
-        /// <summary>
-        /// 页面中所有的超链接
-        /// </summary>
-        protected Dictionary<string, string> result { get; set; }
     }
 }
