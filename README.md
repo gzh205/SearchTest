@@ -5,7 +5,7 @@
 爬虫使用方式：创建一个Crawler的子类，并实现pageProsser方法（在该方法中添加爬虫的爬取规则），最后调用Crawler的静态成员run方法即可运行。  
 爬取规则示例代码:  
 ```
-class Demo:Crawler
+class Demo:CrawlerCore
 {
     //爬虫打开每一个页面都会调用一次该函数
     protected override void pageProcesser(Documents doc)
@@ -38,8 +38,6 @@ class Demo:Crawler
     }  
 }
 ```
-调用爬虫示例代码:  
-```Crawler.run(new Demo().new Demo().setUrl("网址").setDepth(深度).setUA("浏览器标识"))  ```
   
-其中深度就是爬虫之心深度优先搜索时打开页面的深度,因为爬虫不能无限制地打开新的页面  
+之前是深度优先搜索，现在为了能让爬虫够执行多线程任务，将其改为了广度优先搜索
 浏览器标识是为了让爬虫能够模拟手机或者iPad设备
