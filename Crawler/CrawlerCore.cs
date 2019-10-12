@@ -61,7 +61,6 @@ namespace Crawler
             ThreadNum = 1;
             this.depth = 1;
             threads = new UrlThread(this);
-            this.urls.setMaxSize();
         }
         public CrawlerCore setDepth(int num)
         {
@@ -79,8 +78,19 @@ namespace Crawler
             return this;
         }
         public abstract void pageProcesser(Documents doc);
+        public static void run(CrawlerCore c)
+        {
+            if (c == null)
+                return;
+            else if (c.depth == 0 || c.ThreadNum == 0)
+                return;
+            else
+                c.threads.start(c.ThreadNum);
+        }
         public static Uri[] str2uri(string[] uri)
         {
+            if (uri == null)
+                return null;
             Uri[] result = new Uri[uri.Length];
             for(int i = 0; i < uri.Length; i++)
             {
