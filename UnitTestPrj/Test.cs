@@ -27,8 +27,15 @@ namespace UnitTestPrj
         {
             ThreadPool.SetMinThreads(5, 5);
             ThreadPool.SetMaxThreads(10, 10);
-            for(int i=0;i<100;i++)
-                ThreadPool.QueueUserWorkItem()
+            for (int i = 0; i < 100; i++)
+                ThreadPool.QueueUserWorkItem(te);
+        }
+        public void te(object state)
+        {
+            StreamWriter sw = new StreamWriter(new FileStream("tmpa.txt", FileMode.Append));
+            sw.Write("thread run");
+            sw.WriteLine();
+            sw.Close();
         }
         /// <summary>
         /// 将字符串写进文件中

@@ -61,7 +61,6 @@ namespace Crawler
             ThreadNum = 1;
             this.depth = 1;
             threads = new UrlThread(this);
-            this.urls.setMaxSize();
         }
         public CrawlerCore setDepth(int num)
         {

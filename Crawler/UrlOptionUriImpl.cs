@@ -16,8 +16,8 @@ namespace Crawler
         {
             if (uri.Host != uris[0].Host)
                 return;
-            if (uris.IndexOf(uri) == -1)
-                this.uris.Add(uri);
+            if (uris.IndexOf(uri) == -1 && saves.IndexOf(uri) == -1 && tmp.IndexOf(uri) == -1)
+                this.tmp.Add(uri);
         }
     }
 }

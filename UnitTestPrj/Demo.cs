@@ -18,15 +18,10 @@ namespace UnitTestPrj
         }
         public override void pageProcesser(Documents doc)
         {
-            FileStream fs = new FileStream("temp.txt", FileMode.Append);
-            StreamWriter sw = new StreamWriter(fs);
-            sw.Write(doc.geHtmlDoc());
-            sw.WriteLine();
+            sw.WriteLine(doc.geHtmlDoc());
             sw.Write("------------------------------page-------------------------------------");
             sw.WriteLine();
-            sw.Close();
-            sw.Dispose();
-            fs.Close();
         }
+        public static StreamWriter sw = new StreamWriter(new FileStream("temp.txt", FileMode.Append));
     }
 }
